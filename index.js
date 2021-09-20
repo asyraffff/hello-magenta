@@ -1,5 +1,5 @@
-var TWINKLE_TWINKLE;
-var player, viz, vizPlayer;
+var TWINKLE_TWINKLE, DRUMS;
+var player, viz, drumViz, vizPlayer, drumVizPlayer;
 createSampleSequences();
 createSamplePlayers();
 
@@ -27,6 +27,32 @@ function createSampleSequences() {
         }],
         totalTime: 8
     };
+
+    DRUMS = {
+        notes: [
+          { pitch: 36, quantizedStartStep: 0, quantizedEndStep: 1, isDrum: true },
+          { pitch: 38, quantizedStartStep: 0, quantizedEndStep: 1, isDrum: true },
+          { pitch: 42, quantizedStartStep: 0, quantizedEndStep: 1, isDrum: true },
+          { pitch: 46, quantizedStartStep: 0, quantizedEndStep: 1, isDrum: true },
+          { pitch: 42, quantizedStartStep: 2, quantizedEndStep: 3, isDrum: true },
+          { pitch: 42, quantizedStartStep: 3, quantizedEndStep: 4, isDrum: true },
+          { pitch: 42, quantizedStartStep: 4, quantizedEndStep: 5, isDrum: true },
+          { pitch: 50, quantizedStartStep: 4, quantizedEndStep: 5, isDrum: true },
+          { pitch: 36, quantizedStartStep: 6, quantizedEndStep: 7, isDrum: true },
+          { pitch: 38, quantizedStartStep: 6, quantizedEndStep: 7, isDrum: true },
+          { pitch: 42, quantizedStartStep: 6, quantizedEndStep: 7, isDrum: true },
+          { pitch: 45, quantizedStartStep: 6, quantizedEndStep: 7, isDrum: true },
+          { pitch: 36, quantizedStartStep: 8, quantizedEndStep: 9, isDrum: true },
+          { pitch: 42, quantizedStartStep: 8, quantizedEndStep: 9, isDrum: true },
+          { pitch: 46, quantizedStartStep: 8, quantizedEndStep: 9, isDrum: true },
+          { pitch: 42, quantizedStartStep: 10, quantizedEndStep: 11, isDrum: true },
+          { pitch: 48, quantizedStartStep: 10, quantizedEndStep: 11, isDrum: true },
+          { pitch: 50, quantizedStartStep: 10, quantizedEndStep: 11, isDrum: true },
+        ],
+        quantizationInfo: {stepsPerQuarter: 3},
+        tempos: [{time: 0, qpm: 100}],
+        totalQuantizedSteps: 11
+    };
 }
 
 function createSamplePlayers() {
@@ -52,12 +78,18 @@ function createSamplePlayers() {
 
     // A Visualizer
     viz = new mm.Visualizer(TWINKLE_TWINKLE, document.getElementById('canvas'), config);
+    drumViz = new mm.Visualizer(DRUMS, document.getElementById('canvas2'), config);
 
     // This player calls back two functions;
     // - run, after a note is played. This is where we update the visualizer.
     // - stop, when it is done playing the note sequence.
     vizPlayer = new mm.Player(false, {
         run: (note) => viz.redraw(note),
+        stop: () => {console.log('done');}
+    });
+
+    drumVizPlayer = new mm.Player(false, {
+        run: (note) => drumViz.redraw(note),
         stop: () => {console.log('done');}
     });
 }
