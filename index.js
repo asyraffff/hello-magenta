@@ -1,5 +1,5 @@
 var TWINKLE_TWINKLE;
-var player;
+var player, viz, vizPlayer;
 createSampleSequences();
 createSamplePlayers();
 
@@ -31,14 +31,35 @@ function createSampleSequences() {
 
 function createSamplePlayers() {
     // A plain NoteSequence player
-    // player = new mm.Player();
+    player = new mm.Player();
 
     // lets you use real sounds for any of the notes played.
-    player = new mm.SoundFontPlayer('https://storage.googleapis.com/magentadata/js/soundfonts/sgm_plus');
+    // player = new mm.SoundFontPlayer('https://storage.googleapis.com/magentadata/js/soundfonts/sgm_plus');
 
     // can control the player like this
     // player.start(TWINKLE_TWINKLE);
     // player.stop();
+
+    // A Visualizer config
+
+    config = {
+        noteHeight: 9,
+        pixelsPerTimeStep: 100,  // like a note width
+        noteSpacing: 3,
+        noteRGB: '8, 41, 64',
+        activeNoteRGB: '240, 84, 119',
+      }
+
+    // A Visualizer
+    viz = new mm.Visualizer(TWINKLE_TWINKLE, document.getElementById('canvas'), config);
+
+    // This player calls back two functions;
+    // - run, after a note is played. This is where we update the visualizer.
+    // - stop, when it is done playing the note sequence.
+    vizPlayer = new mm.Player(false, {
+        run: (note) => viz.redraw(note),
+        stop: () => {console.log('done');}
+    });
 }
 
 function startOrStop(event, p, seq = TWINKLE_TWINKLE) {
@@ -46,14 +67,13 @@ function startOrStop(event, p, seq = TWINKLE_TWINKLE) {
         p.stop();
         event.target.textContent = 'Play';
     } else {
-        p.start(seq)
-        // .then(() => {
-        //     // Stop all buttons.
-        //     const btns = document.querySelectorAll('.controls > button');
-        //     for (let btn of btns) {
-        //         btn.textContent = 'Play';
-        //     }
-        // });
+        p.start(seq).then(() => {
+            // Stop all buttons.
+            const btns = document.querySelectorAll('.controls > button');
+            for (let btn of btns) {
+                btn.textContent = 'Play';
+            }
+        });
         event.target.textContent = 'Stop';
     }
 }

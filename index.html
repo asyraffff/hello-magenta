@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Making music with Magenta.js</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/@magenta/music@^1.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@magenta/music@1.18.1"></script>
+
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
    <h1>Making music with Magenta.js 🔥</h1> 
@@ -16,7 +18,14 @@
        <button onclick="startOrStop(event, player)">Play</button>
    </div>
 
-    
+   <h3>Visualizing a NoteSequence</h3> 
+   <div class="controls">
+       <button onclick="startOrStop(event, vizPlayer)">Play</button>
+   </div>
+   <div class="canvas-container">
+       <canvas id="canvas"></canvas>
+   </div>
+
    <script src="./index.js"></script>
 </body>
 

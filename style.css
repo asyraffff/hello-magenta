@@ -1,0 +1,41 @@
+body {
+    font-family: "Benton Sans", "Helvetica Neue", helvetica, arial, sans-serif;
+    line-height: 1.5;
+    max-width: 800px;
+    margin: 3em;
+    -webkit-font-smoothing: antialiased;
+}  
+
+button {
+    -webkit-appearance: none;
+    display: inline-block;
+    padding: 6px 14px;
+    font-size: inherit;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: white;
+    color: #292A36;
+    min-width: 100px;
+    border: 4px solid #F5DDEE;
+    font-weight: bold;
+    letter-spacing: 1px;
+    font-size: 14px;
+}
+
+.controls > div {
+    padding: 6px 14px;
+    text-transform: uppercase;
+    background: #F5DDEE;
+    color: #292A36;
+    border: 4px solid #F5DDEE;
+    font-weight: bold;
+    text-align: center;
+    letter-spacing: 1px;
+    font-size: 14px;
+}
+
+.canvas-container {
+    border: 5px solid #F5DDEE !important;
+    overflow-x: auto;
+    margin-top: -5px;
+}
