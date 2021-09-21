@@ -1,9 +1,10 @@
 var TWINKLE_TWINKLE, ORIGINAL_TWINKLE_TWINKLE, DRUMS;
 var player, viz, drumViz, rnnViz, vizPlayer, drumVizPlayer, rnnVizPlayer;
-var music_rnn, rnnPlayer;
+var music_rnn, rnnPlayer, music_vae, vaePlayer;
 createSampleSequences();
 createSamplePlayers();
 setupMusicRNN();
+setupMusicVAE();
 
 function createSampleSequences() {
     TWINKLE_TWINKLE = {
@@ -154,6 +155,31 @@ function playRNN(event) {
     music_rnn
     .continueSequence(qns, rnn_steps, rnn_temperature)
     .then((sample) => rnnPlayer.start(sample));
+}
+
+// MusicVAE
+
+vae_temperature = 2.0; // changing the temperature changes the randomness of the result.
+function setupMusicVAE() {
+    // Initialize model
+    music_vae = new mm.MusicVAE('https://storage.googleapis.com/magentadata/js/checkpoints/music_vae/mel_4bar_small_q2');
+    music_vae.initialize();
+
+    // Create a player rot play the sampled sequence
+    vaePlayer = new mm.Player();
+}
+
+function playVAE(event) {
+    if (vaePlayer.isPlaying()) {
+        vaePlayer.stop();
+        event.target.textContent = 'Play';
+        return;
+    } else {
+        event.target.textContent = 'Stop';
+    }
+    music_vae
+    .sample(3, vae_temperature)
+    .then((sample) => vaePlayer.start(sample[0]));
 }
 
 function startOrStop(event, p, seq = TWINKLE_TWINKLE) {
