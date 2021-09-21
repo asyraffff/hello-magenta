@@ -1,7 +1,9 @@
-var TWINKLE_TWINKLE, DRUMS;
-var player, viz, drumViz, vizPlayer, drumVizPlayer;
+var TWINKLE_TWINKLE, ORIGINAL_TWINKLE_TWINKLE, DRUMS;
+var player, viz, drumViz, rnnViz, vizPlayer, drumVizPlayer, rnnVizPlayer;
+var music_rnn, rnnPlayer;
 createSampleSequences();
 createSamplePlayers();
+setupMusicRNN();
 
 function createSampleSequences() {
     TWINKLE_TWINKLE = {
@@ -27,6 +29,30 @@ function createSampleSequences() {
         }],
         totalTime: 8
     };
+
+    ORIGINAL_TWINKLE_TWINKLE = {
+        notes: [
+          {pitch: 60, startTime: 0.0, endTime: 0.5},
+          {pitch: 60, startTime: 0.5, endTime: 1.0},
+          {pitch: 67, startTime: 1.0, endTime: 1.5},
+          {pitch: 67, startTime: 1.5, endTime: 2.0},
+          {pitch: 69, startTime: 2.0, endTime: 2.5},
+          {pitch: 69, startTime: 2.5, endTime: 3.0},
+          {pitch: 67, startTime: 3.0, endTime: 4.0},
+          {pitch: 65, startTime: 4.0, endTime: 4.5},
+          {pitch: 65, startTime: 4.5, endTime: 5.0},
+          {pitch: 64, startTime: 5.0, endTime: 5.5},
+          {pitch: 64, startTime: 5.5, endTime: 6.0},
+          {pitch: 62, startTime: 6.0, endTime: 6.5},
+          {pitch: 62, startTime: 6.5, endTime: 7.0},
+          {pitch: 60, startTime: 7.0, endTime: 8.0},
+        ],
+        tempos: [{
+          time: 0, 
+          qpm: 120
+        }],
+        totalTime: 8
+    };    
 
     DRUMS = {
         notes: [
@@ -79,6 +105,7 @@ function createSamplePlayers() {
     // A Visualizer
     viz = new mm.Visualizer(TWINKLE_TWINKLE, document.getElementById('canvas'), config);
     drumViz = new mm.Visualizer(DRUMS, document.getElementById('canvas2'), config);
+    rnnViz = new mm.Visualizer(ORIGINAL_TWINKLE_TWINKLE, document.getElementById('canvas3'), config);
 
     // This player calls back two functions;
     // - run, after a note is played. This is where we update the visualizer.
@@ -92,6 +119,41 @@ function createSamplePlayers() {
         run: (note) => drumViz.redraw(note),
         stop: () => {console.log('done');}
     });
+
+    rnnVizPlayer = new mm.Player(false, {
+        run: (note) => rnnViz.redraw(note),
+        stop: () => {console.log('done');}
+    })
+}
+
+// musicRNN
+
+var rnn_steps = 30;
+var rnn_temperature = 2.0; // the higher the temperature, the more random (and less like the input) your sequence will be
+function setupMusicRNN() {
+    // Initialize model
+    // music_rnn = new mm.MusicRNN('https://storage.googleapis.com/magentadata/js/checkpoints/music_rnn/basic_rnn');
+    music_rnn = new mm.MusicRNN('https://storage.googleapis.com/magentadata/js/checkpoints/music_rnn/melody_rnn');
+    music_rnn.initialize();
+
+    // Create a player to play the sampled sequence.
+    rnnPlayer = new mm.Player();
+}
+
+function playRNN(event) {
+    if (rnnPlayer.isPlaying()) {
+        rnnPlayer.stop();
+        event.target.textContent = 'Play';
+        return;
+    } else {
+        event.target.textContent = 'Stop';
+    }
+    // The model expects a quantized sequence, and ours was unquantized;
+    const qns = mm.sequences.quantizeNoteSequence(ORIGINAL_TWINKLE_TWINKLE, 4);
+
+    music_rnn
+    .continueSequence(qns, rnn_steps, rnn_temperature)
+    .then((sample) => rnnPlayer.start(sample));
 }
 
 function startOrStop(event, p, seq = TWINKLE_TWINKLE) {
