@@ -1,5 +1,5 @@
-var TWINKLE_TWINKLE, ORIGINAL_TWINKLE_TWINKLE, DRUMS;
-var player, viz, drumViz, rnnViz, vizPlayer, drumVizPlayer, rnnVizPlayer;
+var TWINKLE_TWINKLE, ORIGINAL_TWINKLE_TWINKLE, DRUMS, LITTLE_TEAPOT;
+var player, viz, drumViz, rnnViz, vaeViz, interpolationViz, vizPlayer, drumVizPlayer, rnnVizPlayer, vaePlayer, interpolationPlayer;
 var music_rnn, rnnPlayer, music_vae, vaePlayer;
 createSampleSequences();
 createSamplePlayers();
@@ -79,6 +79,22 @@ function createSampleSequences() {
         quantizationInfo: {stepsPerQuarter: 3},
         tempos: [{time: 0, qpm: 100}],
         totalQuantizedSteps: 11
+    };
+
+    LITTLE_TEAPOT = {
+        notes: [
+          { pitch: 69, quantizedStartStep: 0, quantizedEndStep: 2, program: 0 },
+          { pitch: 71, quantizedStartStep: 2, quantizedEndStep: 4, program: 0 },
+          { pitch: 73, quantizedStartStep: 4, quantizedEndStep: 6, program: 0 },
+          { pitch: 74, quantizedStartStep: 6, quantizedEndStep: 8, program: 0 },
+          { pitch: 76, quantizedStartStep: 8, quantizedEndStep: 10, program: 0 },
+          { pitch: 81, quantizedStartStep: 12, quantizedEndStep: 16, program: 0 },
+          { pitch: 78, quantizedStartStep: 16, quantizedEndStep: 20, program: 0 },
+          { pitch: 81, quantizedStartStep: 20, quantizedEndStep: 24, program: 0 },
+          { pitch: 76, quantizedStartStep: 24, quantizedEndStep: 26, program: 0 }
+        ],
+        quantizationInfo: { stepsPerQuarter: 4 },
+        totalQuantizedSteps: 26,
     };
 }
 
@@ -179,7 +195,41 @@ function playVAE(event) {
     }
     music_vae
     .sample(3, vae_temperature)
-    .then((sample) => vaePlayer.start(sample[0]));
+    .then((sample) => {
+        vaePlayer.start(sample[0])
+
+        // Visualizer
+        vaeViz = new mm.Visualizer(sample, document.getElementById('canvas4'));
+        vaePlayer = new mm.Player(false, {
+            run: (note) => vaeViz.redraw(note),
+            stop: () => {console.log('done');}
+        });
+    });
+}
+
+// Interpolation
+
+function playInterpolation() {
+    if (vaePlayer.isPlaying()) {
+        vaePlayer.stop();
+        return;
+    }
+    // MusicVAE requires quantized melodies, so quantize them first.
+    const star = mm.sequences.quantizeNoteSequence(TWINKLE_TWINKLE, 4);
+
+    music_vae
+    .interpolate([star, LITTLE_TEAPOT], 4 /* star + teapot + 1 in between */)
+    .then((sample) => {
+        const concatenated = mm.sequences.concatenate(sample);
+        vaePlayer.start(concatenated);
+
+        // Visualizer
+        interpolationViz = new mm.Visualizer(concatenated, document.getElementById('canvas5'));
+        interpolationPlayer = new mm.Player(false, {
+            run: (note) => interpolationViz.redraw(note),
+            stop: () => {console.log('done');}
+        });
+    })
 }
 
 function startOrStop(event, p, seq = TWINKLE_TWINKLE) {
