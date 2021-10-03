@@ -6,6 +6,10 @@ createSamplePlayers();
 setupMusicRNN();
 setupMusicVAE();
 
+// just want to try TODO: & FIXME: extension.
+// TODO: 
+// FIXME:
+
 function createSampleSequences() {
     TWINKLE_TWINKLE = {
         notes: [
