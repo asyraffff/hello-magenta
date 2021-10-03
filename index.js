@@ -7,8 +7,8 @@ setupMusicRNN();
 setupMusicVAE();
 
 // just want to try TODO: & FIXME: extension.
-// TODO: 
-// FIXME:
+// TODO: I do not know what is this
+// FIXME: by next morning!!!!!!!!
 
 function createSampleSequences() {
     TWINKLE_TWINKLE = {
